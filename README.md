@@ -1,90 +1,141 @@
-# SurveySim — MBES Survey Simulator
+# SurveySim — Marine Survey Simulator
 
-A desktop survey simulator that generates realistic multibeam echo-sounder data, vessel motion, and sensor outputs for training, testing, and software development.
+A desktop simulator of a hydrographic survey. It reproduces the vessel, the sensors, the water column, the seabed and the data of real multibeam equipment, so that you can **train**, **test your acquisition and processing software** and **calibrate a system** the way you would at sea — without leaving the office.
+
+- A moving vessel in a real place, with irregular sea, hull response, tide and a full vertical reference.
+- GNSS, gyro, motion sensor and sound velocity sensors with datasheet errors, sending the telegrams of the real equipment.
+- A multibeam (Kongsberg EM, Teledyne Reson, Norbit, R2Sonic) that traces rays through a true water column and sends its data in the real formats.
+- Raw sonar files (`.s7k`, `.kmall`) to process in Qimera, MB-System, CARIS and others.
+- A patch test training module, with a hidden misalignment of the transducer.
 
 ---
 
 ## Installation
 
-Download the latest installer (`SurveySim.Setup.x.y.z.exe`) from the [Releases page](https://github.com/josageof/surveysim-releases/releases) and run it.
-After installation, launch SurveySim from the Start Menu or desktop shortcut.
+Download the latest installer (`SurveySim.Setup.x.y.z.exe`) from the [Releases page](https://github.com/josageof/surveysim-releases/releases) and run it. You can install over a previous version.
+After the installation, start SurveySim from the Start Menu or the desktop shortcut.
+
+**Requirements:** Windows 10 or 11 (64-bit). Internet is needed to sign in and renew the license, and to download the map imagery and the bathymetry of a new area the first time (they are cached afterwards).
+
+### Sign-in and license
+
+- Create an account in the sign-in window and **confirm your email** (open the link we send you), then sign in.
+- **Forgot password** is inside the app: a code is sent by email and you are signed in with the new password.
+- The license is a signed lease tied to your computer. It works **offline for up to 7 days** and is renewed automatically, every 60 minutes, while you are online.
+- **About** (the *i* button below SYSTEM) shows your version, account, plan and license validity.
 
 ---
 
-## Quick Start
+## Quick start
 
-1. **Launch SurveySim** and sign in (or use a cached offline session).
-2. **Set up the CRS** (CRS tab) — select UTM zone and hemisphere matching your survey area.
-3. **Configure the vessel** (VEH tab) — adjust draft, sensor offsets from CRP, and model opacity.
-4. **Set the start position and speed** (NAV tab → Mission Setup).
-5. **Choose a navigation mode** (NAV tab → Navigation Mode):
-   - **Manual** — control heading with the slider.
-   - **Waypoint** — click the map or enter lat/lon; vessel steers automatically.
-   - **Runline** — upload a CSV of UTM waypoints; vessel follows the planned line.
-6. **Configure the environment** (ENV tab) — set wave height, period, direction, and enable/disable heave/surge/sway/roll/pitch.
-7. **Configure MBES** (MBES tab) — set number of beams, swath angle, SVP mode, and recording.
-8. **Connect sensor outputs** (OUT tab) — configure TCP/UDP/Serial for GPS, Gyro, IMU, and MBES outputs.
-9. **Press Start** — simulation begins. Watch the vessel in the 3D navigation view.
-10. **Press Stop** to pause, or use **Return to Start** to teleport back to the initial position.
+1. **Sign in** and open the app. Use **File → Open** for a project (`.sim`) or start a new one.
+2. **GLOBAL → GEODESY**: set the project CRS (UTM zone or EPSG). Use the same CRS in your acquisition and processing software. **DATUM** and **TIDE** set the vertical reference.
+3. **VEHICLE**: pick the vessel and check the sensor offsets from the CRP.
+4. **SENSOR**: choose the equipment — GNSS, GYRO, MOTION, SVS / SVP and MBES (model, frequency, swath, stabilization).
+5. **MISSION → NAVIGATION**: set the start position and speed, choose the mode — **Manual**, **Waypoint** or **Runline** (line plan) — and use **Start** in the RUNTIME panel.
+6. **DATA → OUTPUT**: send each sensor to your software (UDP, TCP, serial or the data feed), then connect.
+7. **RUNTIME → SVP**: cast the sound velocity profiler and load the cast into the sonar processor before pinging.
+8. **RUNTIME → MBES**: **Start pinging**. Watch the soundings in the NAVIGATION and SURVEYING views.
+9. **File → Save** keeps the whole survey in one `.sim` file.
 
 ---
 
-## Interface Overview
+## Interface
 
-### Tabs (left panel)
+### CONTROLS (left panel — icons on the left, same order as the tabs)
 
-| Tab | Purpose |
-|-----|---------|
-| **CRS** | Coordinate Reference System — UTM zone, hemisphere, EPSG |
-| **ENV** | Environment — wave model (height, period, direction), motion scaling |
-| **VEH** | Vessel model — draft, opacity, CRP and sensor offsets (X/Y/Z from CRP), sensor colors |
-| **NAV** | Navigation — start position, speed, autopilot, navigation mode (manual / waypoint / runline) |
-| **LOG** | Navigation log — enable, output folder, interval, auto-rotation |
-| **MBES** | Sonar — beams, swath angle, SVP, recording, import/export point cloud |
+| Group | Tabs | Purpose |
+|-------|------|---------|
+| **GLOBAL** | GEODESY · DATUM · TIDE · SEA STATE · WATER | Project CRS, geoid and vertical reference, tide, waves and swell, true water column |
+| **SEABED** | BOTTOM · OBSTACLES | Seabed type and noise; wrecks and structures as 3D models (`.glb`) with burial |
+| **VEHICLE** | one tab per vessel | Offsets, sensor positions, hull, minimum under-keel clearance |
+| **SENSOR** | GNSS · GYRO · MOTION · SVS / SVP · MBES | Equipment catalog and settings |
+| **CALIBRATION** | PATCH TEST | Patch test training: site and lines, hidden misalignment and results |
+| **MISSION** | PLANNING · NAVIGATION · SURVEYING | Line plan and runline library; mission setup, autopilot and navigation mode; the SVP in the sonar processor, the IHO standard and the swath display |
+| **DATA** | OUTPUT · LOGGING · EXPORT | Sensor outputs, navigation log and raw sonar logging, import/export of soundings |
+| **SYSTEM** | MONITOR · COLOR | System health thresholds and the global color palette |
 
+### 3D VIEW (right panel)
 
-### 3D View (right panel)
+- **VEHICLE** — the vessel model with the sensor positions; planar views (TOP, BOW, STBD…) and free orbit.
+- **NAVIGATION** — map with the live position, the line plan and the online DTM (the mean depth of each cell, like the DTM of the navigation software). Cameras: Free / Lazy / Track.
+- **SURVEYING** — the soundings as a point cloud with the swath, the SVP cast going down and the colour scale of your palette.
 
-- **VESSEL** sub-tab: 3D model with sensor spheres.
-  - Buttons on the left: **3D** (free orbit), **TOP**, **BTM**, **BOW**, **STN**, **STBD**, **PORT** — planar views lock rotation; only pan and zoom remain active.
-- **NAVIGATION** sub-tab: Globe with live vessel position, runline, waypoint indicator, and MBES point cloud.
-  - **[T]** / camera button: cycles Free → Lazy → Track camera modes.
-  - **[M]** / mode button: toggles 2D ↔ 3D scene.
-  - **MBES** button: toggles point cloud colorization between depth (rainbow) and backscatter (grayscale).
+### RUNTIME (bottom left) and dashboards (bottom right)
 
----
-
-## Sensor Outputs (NMEA over TCP/UDP/Serial)
-
-| Sensor | Protocol | Default port | Sentences |
-|--------|---------|-------------|-----------|
-| GPS1 | UDP | 50001 | GGA, RMC, VTG |
-| GPS2 | UDP | 50002 | GGA, RMC |
-| GYRO1 | UDP | 50003 | HDT |
-| IMU | UDP | 50004 | ROT, custom pitch/roll/heave |
-| MBES | — | — | Coming feature |
+- **NAVIGATION** — Start / Pause / Reset of the mission. Reset stops the mission and takes the vessel back to the start; it never changes your settings.
+- **SVP** — cast the profiler, follow the descent, compare the SVS with the loaded profile and load the new cast.
+- **MBES** — **Start pinging**, **Clear**, **Auto SOL/EOL** (the sonar pings only from the start to the end of each line of the plan, no run-in or run-out), **Split file** and the live sounding statistics.
+- Dashboards: NAV · GNSS · GYRO · MOTION · MBES · VESSEL.
 
 ---
 
-## MBES Recording
+## Survey lines
 
-- Enable recording in the **MBES** tab before pressing Start.
-- Data is saved as a binary `.bin` file in `%APPDATA%\SurveySim\cache\`.
-- Use **Export LAS** to export the accumulated point cloud as a `.las` file.
-- Use **Import .bin** to reload a previously recorded session and visualise it in the Cesium view.
-
----
-
-## Navigation Log
-
-- Enable in the **LOG** tab; configure interval and auto-rotation.
-- Logs are saved as `.csv` files (lat, lon, heading, pitch, roll, heave, time) in the configured folder (default: `%APPDATA%\SurveySim\logs\`).
+- **Line plan** (MISSION → PLANNING): several runlines in sequence, each with its own run-in, run-out, direction and speed. Runlines can be added from files (CSV with `lat,lon` or `x,y`; EIVA `.rlxp`), drawn on the map or taken from the **runline library** — a watched folder, such as the Runlines folder of Helmsman / NaviPac.
+- The coordinates are E/N of the project CRS, which must be the same in the other software.
+- **Set to Start** takes the vessel to the start of the mission of the current mode; **Start** continues from where the vessel is.
 
 ---
 
-## Settings Persistence
+## Sensor outputs
 
-All configuration (CRS, vessel, MBES, environment, outputs, logs) is saved automatically to:
-```
-%APPDATA%\SurveySim\settings.json
-```
+Each sensor is sent in **DATA → OUTPUT**, to one or more destinations (UDP, TCP, serial, or the data feed to an acquisition computer).
+
+| Sensor | Telegrams |
+|--------|-----------|
+| GNSS (2 receivers) | NMEA GGA, GST and ZDA, plus VTG or GGK depending on the receiver model |
+| Gyro | NMEA heading (HDT) with the update rate and noise of the model |
+| Motion sensor | TSS1, EM3000, KM Binary or PSXN attitude, by model; integrated INS (Seapath 385-5+) |
+| SVS | Valeport miniSVS and AML formats |
+| Multibeam | Teledyne 7k (e.g. record 7027) · R2Sonic BTH0 · Kongsberg KMALL `#MRZ`, by model |
+
+The simulator does not tell the acquisition chain about the hidden errors of the training modules: the telegrams carry what a real sensor would send.
+
+---
+
+## Raw sonar logging (DATA → LOGGING)
+
+The simulator records the raw data as the sonar's own software does, to process the survey without the acquisition software:
+
+| Sonar | File |
+|-------|------|
+| Teledyne Reson SeaBat 7125, Norbit iWBMSh STX | `.s7k` (header and catalog like 7k Center, installation, SVP, GNSS antenna, attitude and every ping) |
+| Kongsberg EM 2040 | `.kmall` (installation, SVP, position, attitude and every ping) |
+
+- **One file per survey line**: **Start pinging** opens a file and **Stop pinging** closes it; **Split file** (RUNTIME → MBES) starts the next one without stopping. With **Auto SOL/EOL** the lines are separated for you.
+- R2Sonic and the generic multibeam do not record raw files: their data is recorded by the acquisition software, as in a real installation.
+- Close the app normally (File → Exit or the window button) so that the file in use is completed.
+
+---
+
+## Patch test training (CALIBRATION → PATCH TEST)
+
+1. **1 · SITE AND LINES** — pick a target (for example a wreck) and create the five calibration lines: pitch/roll, latency and yaw. The transducer, not the vessel reference point, passes over the target. The **site check** shows which misalignment that site can resolve — a good site is an isolated target with steep faces on a flat seabed, in 50–70 m of water.
+2. **2 · MISALIGNMENT AND RESULTS** — switch on the parameters (roll, pitch, yaw, latency), survey the lines, compute the patch test in your software and type your values; **Check** compares them with the hidden misalignment and **Reveal** shows it. **Tolerances for an IHO S-44 order** can be suggested for the depth and speed of the lines.
+
+Latency is a sonar clock offset: it delays the ping in relation to both the position and the motion sensor. Processing software solves the position latency only — apply the value you find to the motion sensor too, or survey the patch test with latency off.
+
+---
+
+## Recording and exporting soundings
+
+- **RUNTIME → MBES** records the soundings in a `.bin` file while pinging, one per line (**Open folder** shows it in Windows Explorer). The files are in `%APPDATA%\SurveySim\cache\`.
+- **DATA → EXPORT**: **Export LAS** exports the accumulated point cloud; **Import .bin** reloads a recorded session.
+- **DATA → LOGGING → NAV LOG** saves the vessel navigation to `navlog_<date>_<time>.csv` files, in the folder you choose.
+
+---
+
+## Projects and where the files are
+
+- A project (`.sim`) holds the whole survey: settings, line plan, seabed objects with their models, sound velocity casts, soundings and the outputs. Double-click a `.sim` file to open it in SurveySim.
+- Unsaved changes are checked when you close, and a recovery copy is kept if the computer is switched off while you work.
+- `%APPDATA%\SurveySim\` keeps only the application data: recent projects, the recovery copy, the cache (soundings `.bin`, bathymetry), the cast files and the logs.
+- **File → New project** starts from the factory settings.
+
+---
+
+## Notes
+
+- BOSS and the OPERATION (ROV) tab are not part of this version.
+- With every misalignment corrected, a few centimetres of ripple remain at the outer beams: the motion sensor and sounding errors, as in a real survey.
